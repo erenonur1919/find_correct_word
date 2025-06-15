@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Magical Word Adventure</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Comic+Neue:wght@400;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Neue', cursive;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      max-height: 100%;
+    }
+
+
+    .background-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: fill;
+      z-index: -1;
+    }
+
+    /* Background overlay to ensure content readability */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+      z-index: -1;
+    }
+    /* Animated background elements */
+    .star {
+      position: absolute;
+      background: #fff;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      animation: twinkle 2s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* Final Boss Video Container */
+    .final-boss-video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .final-boss-video {
+      max-width: 80%;
+      max-height: 70%;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(255, 0, 0, 0.5);
+      border: 3px solid #ff4757;
+    }
+
+    .final-boss-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 48px;
+      color: #ff4757;
+      text-shadow: 3px 3px 0px #000;
+      margin-bottom: 20px;
+      animation: ominousPulse 2s infinite;
+    }
+
+    @keyframes ominousPulse {
+      0%, 100% { transform: scale(1); color: #ff4757; }
+      50% { transform: scale(1.1); color: #ff3742; }
+    }
+
+    .skip-video-btn {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-family: 'Fredoka One', cursive;
+      background: linear-gradient(135deg, #ff4757, #ff3742);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .skip-video-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(255, 71, 87, 0.6);
+    }
+
+    .score-container {
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+      max-height: 20%;
+    }
+
+    .game-container {
+      text-align: center;
+      position: relative;
+      max-width: 1200px;
+      width: 75%;
+      margin: 0 auto 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Final Boss Theme */
+    .final-boss-theme {
+      background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+      border: 4px solid #e74c3c !important;
+      box-shadow: 0 20px 40px rgba(231, 76, 60, 0.4) !important;
+    }
+
+    .final-boss-theme .game-title {
+      color: #6c5ce7 !important;
+      text-shadow: 3px 3px 0px #000, -1px -1px 0px #c0392b !important;
+    }
+
+    .game-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 36px;
+      color: #00b894;
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 0px #000, -1px -1px 0px #000;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .center-word {
+      font-size: 42px;
+      font-weight: bold;
+      font-family: 'Fredoka One', cursive;
+      margin: 35px auto;
+      width: 220px;
+      height: 220px;
+      line-height: 220px;
+      border: 8px solid #ff6b6b;
+      border-radius: 50%;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+      animation: pulse 3s ease-in-out infinite;
+      color: #2d3436;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .center-image {
+      width: 170px;
+      height: 170px;
+      object-fit: contain;
+      border-radius: 15px;
+      filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+    }
+
+    .final-boss-center-word {
+        width: 350px;
+        height: 280px;
+        border-radius: 20px; /* Rectangular with rounded corners */
+        border: 6px solid #e74c3c;
+        background: #222;
+        padding: 0;
+    }
+
+
+    /* Final Boss Test Progress */
+    .final-boss-progress {
+      display: none;
+      margin: 20px 0;
+      padding: 15px;
+      background: #6c5ce7;
+      border-radius: 20px;
+      color: white;
+      font-family: 'Fredoka One', cursive;
+      font-size: 24px;
+      text-shadow: 2px 2px 0px #000;
+    }
+
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 25px;
+      justify-content: center;
+      margin: 40px 0;
+    }
+
+    .word-button {
+      background: linear-gradient(135deg, #a8e6cf, #88d8a3);
+      border: 4px solid #00b894;
+      padding: 20px 15px;
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: bold;
+      font-family: 'Comic Neue', cursive;
+      border-radius: 25px;
+      color: #2d3436;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .word-button:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(0, 184, 148, 0.5);
+      background: linear-gradient(135deg, #81ecec, #74b9ff);
+    }
+
+    .word-button:active {
+      transform: translateY(2px) scale(0.95);
+    }
+
+    .word-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s;
+      opacity: 0;
+    }
+
+    .word-button:hover::before {
+      animation: shine 0.6s ease-in-out;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+    }
+
+    .score {
+      margin: 15px 0 0 0;
+      font-size: 32px;
+      font-weight: bold;
+      font-family: 'Fredoka One', cursive;
+      color: #6c5ce7;
+      text-shadow: 2px 2px 0px #fff;
+      background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+      padding: 20px 40px;
+      border-radius: 30px;
+      display: inline-block;
+      border: 4px solid #fdcb6e;
+      box-shadow: 0 8px 20px rgba(253, 203, 110, 0.4);
+    }
+
+    .next-tour-btn, .restart-btn {
+      display: none;
+      margin: 20px 15px;
+      padding: 18px 40px;
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Fredoka One', cursive;
+      cursor: pointer;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(135deg, #fd79a8, #e84393);
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px rgba(232, 67, 147, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 99;
+    }
+
+    .next-tour-btn:hover, .restart-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(232, 67, 147, 0.6);
+      background: linear-gradient(135deg, #e84393, #fd79a8);
+    }
+
+    .next-tour-btn:active, .restart-btn:active {
+      transform: translateY(1px);
+    }
+
+    .colored-letter {
+      display: inline;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Correct answer animation */
+    .correct-answer {
+      background: linear-gradient(135deg, #00b894, #55a3ff) !important;
+      animation: correctPulse 0.6s ease-in-out;
+      border-color: #00b894 !important;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Wrong answer animation */
+    .wrong-answer {
+      background: linear-gradient(135deg, #ff7675, #fd79a8) !important;
+      animation: shake 0.5s ease-in-out;
+      border-color: #ff7675 !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Celebration animation */
+    .celebration {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      animation: celebrate 1s ease-in-out;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes celebrate {
+      0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 0; }
+    }
+
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .score-container {
+        padding: 15px;
+      }
+      
+      .game-container {
+        max-width: 95%;
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+      
+      .game-title {
+        font-size: 30px;
+      }
+      
+      .center-word {
+        width: 180px;
+        height: 180px;
+        font-size: 36px;
+      }
+      
+      .center-image {
+        width: 140px;
+        height: 140px;
+      }
+      
+      .word-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+      }
+      
+      .word-button {
+        font-size: 20px;
+        padding: 18px 12px;
+        min-height: 70px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .score-container {
+        padding: 10px;
+      }
+      
+      .game-container {
+        padding: 20px;
+        margin-bottom: 15px;
+      }
+      
+      .game-title {
+        font-size: 26px;
+      }
+      
+      .center-word {
+        width: 160px;
+        height: 160px;
+        font-size: 32px;
+      }
+      
+      .center-image {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .word-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 15px;
+      }
+      
+      .word-button {
+        font-size: 18px;
+        padding: 15px 10px;
+        min-height: 60px;
+      }
+      
+      .score {
+        font-size: 26px;
+        padding: 15px 25px;
+      }
+      
+      .next-tour-btn, .restart-btn {
+        font-size: 20px;
+        padding: 15px 30px;
+      }
+
+      .final-boss-title {
+        font-size: 36px;
+      }
+
+      .final-boss-video {
+        max-width: 95%;
+        max-height: 60%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="startScreen" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  font-family: 'Fredoka One', cursive;
+  text-align: center;
+  color: white;
+">
+  <h1 style="font-size: 48px; text-shadow: 2px 2px #000;">🌟 Magical Word Adventure 🌟</h1>
+  <button id="startGameBtn" style="
+    margin-top: 30px;
+    padding: 20px 40px;
+    font-size: 24px;
+    background: linear-gradient(135deg, #00b894, #55efc4);
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 184, 148, 0.4);
+    color: #2d3436;
+    font-family: 'Fredoka One', cursive;
+  ">▶️ Start Game</button>
+</div>
+
+    <audio id="background-sound" preload="auto" loop="true">
+      <source src="magic.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  
+    <!-- Loader overlay -->
+    <div id="video-loader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    color: white;
+    font-size: 24px;
+    ">
+    Loading...
+    </div>
+    <!-- Background Video -->
+    <video class="background-video" autoplay muted loop playsinline id="bg-video">
+      <source src="background-video.mp4" type="video/mp4">
+      <!-- Fallback for browsers that don't support video -->
+      <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: -2;"></div>
+    </video>
+  
+  <!-- Animated background elements -->
+  <div class="star" style="top: 10%; left: 10%; width: 20px; height: 20px; animation-delay: 0s;"></div>
+  <div class="star" style="top: 20%; right: 15%; width: 15px; height: 15px; animation-delay: 0.5s;"></div>
+  <div class="star" style="top: 60%; left: 5%; width: 25px; height: 25px; animation-delay: 1s;"></div>
+  <div class="star" style="bottom: 20%; right: 10%; width: 18px; height: 18px; animation-delay: 1.5s;"></div>
+  <div class="star" style="bottom: 40%; left: 20%; width: 22px; height: 22px; animation-delay: 2s;"></div>
+  
+  <div class="cloud" style="top: 5%; left: 20%; width: 80px; height: 40px; animation-delay: 0s;"></div>
+  <div class="cloud" style="top: 15%; right: 25%; width: 60px; height: 30px; animation-delay: 2s;"></div>
+  <div class="cloud" style="bottom: 10%; left: 10%; width: 100px; height: 50px; animation-delay: 4s;"></div>
+
+  <!-- Final Boss Video Container -->
+  <div class="final-boss-video-container" id="finalBossVideoContainer">
+    <div class="final-boss-title">⚔️ FINAL BOSS APPROACHING ⚔️</div>
+    <video class="final-boss-video" autoplay muted loop playsinline id="finalBossVideo">
+      <source src="background-video.mp4" type="video/mp4">
+      <!-- Placeholder: Add your video file here -->
+      Your browser does not support the video tag.
+    </video>
+    <button class="skip-video-btn" id="skipVideoBtn">Skip Video</button>
+  </div>
+
+  <div class="score-container">
+    <h1 class="game-title">🌟 Magical Word Adventure 🌟</h1>
+    <div class="score" id="score">Score: 0</div>
+  </div>
+
+  <div class="game-container" id="gameContainer">
+    <div class="final-boss-progress" id="finalBossProgress">
+      🔥 BOSS BATTLE: Challenge <span id="currentChallenge">1</span> of 7 🔥
+    </div>
+    <div class="center-word" id="centerWord">ATLA</div>
+    <div class="word-grid" id="wordGrid"></div>
+    <button class="next-tour-btn" id="nextTour">🚀 Next Adventure</button>
+    <button class="restart-btn" id="restartGame">🎮 Play Again</button>
+  </div>
+
+  <script>
+    const allTours = [
+      { word: 'ATLA', others: ['ALTA', 'TATLA', 'ALTAN', 'ATLA', 'ALTIN', 'ATAL', 'ATLA', 'ALTA', 'ATLAA', 'ATLA'] },
+      { word: 'ANNE', others: ['ANNA', 'ANE', 'ANEN', 'ENNA', 'ANA', 'ENA', 'NENE'] },
+      { word: 'NANE', others: ['NENA', 'NANNE', 'NANEE', 'NAANE', 'NANA', 'NENE'] },
+      // Final Boss - 7 different challenges
+      { 
+        word: 'FINALboss', 
+        challenges: [
+          { 
+            word: 'Alet', 
+            image: 'alet.png', 
+            others: ['Alte', 'Atel', 'Aelt', 'Alt', 'Alett', 'Ale', 'Altt', 'Elat'] 
+          },
+          { 
+            word: 'Altan', 
+            image: 'altan.png', 
+            others: ['Altn', 'Talan', 'Altnn', 'Altna', 'Anlat', 'Alnat', 'Alltan', 'Alttan'] 
+          },
+          { 
+            word: 'Atlet', 
+            image: 'atlet.jpg', 
+            others: ['Atlt', 'Attel', 'Atlte', 'Atleet', 'Alet', 'Alet', 'Altet', 'Atle'] 
+          },
+          { 
+            word: 'Lale', 
+            image: 'lale.png', 
+            others: ['Lela', 'Lala', 'Lele', 'Lall', 'Lalb', 'Lalo', 'Lali', 'Lalö'] 
+          },
+          { 
+            word: 'Lila', 
+            image: 'lila.png', 
+            others: ['Lale', 'Lali', 'Lela', 'Leli', 'Lala', 'Lili', 'Lilaa', 'Liila'] 
+          },
+          { 
+            word: 'Nine', 
+            image: 'nine.png', 
+            others: ['Neni', 'Niine', 'Ninee', 'Nina', 'Ninen', 'Ninne', 'Nin', 'Nani'] 
+          },
+          { 
+            word: 'Nane', 
+            image: 'nane.png', 
+            others: ['Nnne', 'Nena', 'Nanne', 'Nenna', 'Nanee', 'Nnea', 'Naane', 'Nenne'] 
+          }
+        ]
+      }
+    ];
+
+    let currentTour = 3;
+    let currentBossChallenge = 0;
+    let score = 0;
+    let found = 0;
+    let correctWord = '';
+    let correctDisplayWord = '';
+    let correctColors = [];
+    const startGameBtn = document.getElementById('startGameBtn');
+
+    function preloadImages(imagePaths) {
+      imagePaths.forEach((path) => {
+        const img = new Image();
+        img.src = path;
+      });
+    }
+
+    // Extract image paths from your data
+    const imagePaths = allTours
+      .flatMap(tour => tour.challenges?.map(c => c.image).filter(Boolean) || [])
+      .filter(Boolean);
+
+    startGameBtn.addEventListener('click', () => {
+      startScreen.style.display = 'none';
+      gameContainer.style.display = 'block';
+      playBackgroundSound(); // Start music
+      preloadImages(imagePaths);
+      // Optional, early in game load
+      document.getElementById('finalBossVideo').load();
+      loadTour(currentTour); // Start game logic
+    });
+
+
+    const backgroundSound = document.getElementById('background-sound');
+    function playBackgroundSound() {
+            // backgroundSound.volume = 0.5; // Set a reasonable volume level
+            backgroundSound.play().catch(error => {
+                console.error('Background sound failed to play:', error);
+            });
+    }
+    const video = document.getElementById('bg-video');
+    const loader = document.getElementById('video-loader');
+
+    video.addEventListener('canplaythrough', () => {
+      loader.style.display = 'none'; // hide loader when video is ready
+    });
+
+    // Optional: fallback if video takes too long
+    setTimeout(() => {
+      loader.style.display = 'none';
+      playBackgroundSound()
+    }, 7000); // max wait time 7s
+
+    const centerWordEl = document.getElementById('centerWord');
+    const wordGrid = document.getElementById('wordGrid');
+    const scoreEl = document.getElementById('score');
+    const nextBtn = document.getElementById('nextTour');
+    const restartBtn = document.getElementById('restartGame');
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.style.display = 'none'; // Hide game at start
+    const finalBossVideoContainer = document.getElementById('finalBossVideoContainer');
+    const finalBossVideo = document.getElementById('finalBossVideo');
+    const skipVideoBtn = document.getElementById('skipVideoBtn');
+    const finalBossProgress = document.getElementById('finalBossProgress');
+    const currentChallengeEl = document.getElementById('currentChallenge');
+    const startScreen = document.getElementById('startScreen');
+
+
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'];
+    const celebrationEmojis = ['🎉', '✨', '🌟', '🎊', '🎈', '🏆', '👏', '🎯'];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function randomizeCaps(word) {
+      return word.split('').map(char => Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase()).join('');
+    }
+
+    function getRandomColors(length) {
+      return Array.from({length}, () => colors[Math.floor(Math.random() * colors.length)]);
+    }
+
+    function createColoredWord(word, wordColors) {
+      return word.split('').map((letter, i) => 
+        `<span class="colored-letter" style="color: ${wordColors[i]}">${letter}</span>`
+      ).join('');
+    }
+
+    function colorsMatch(colors1, colors2) {
+      if (colors1.length !== colors2.length) return false;
+      return colors1.every((color, i) => color === colors2[i]);
+    }
+
+    function showCelebration() {
+      const celebration = document.createElement('div');
+      celebration.classList.add('celebration');
+      celebration.textContent = celebrationEmojis[Math.floor(Math.random() * celebrationEmojis.length)];
+      document.body.appendChild(celebration);
+      
+      setTimeout(() => {
+        document.body.removeChild(celebration);
+      }, 1000);
+    }
+
+    function showFinalBossVideo() {
+      finalBossVideoContainer.style.display = 'flex';
+      
+      // When video ends, start the final boss
+      finalBossVideo.addEventListener('ended', startFinalBoss);
+      
+      // Skip video button
+      skipVideoBtn.addEventListener('click', startFinalBoss);
+    }
+
+    function startFinalBoss() {
+      finalBossVideoContainer.style.display = 'none';
+      gameContainer.classList.add('final-boss-theme');
+      finalBossProgress.style.display = 'block';
+      currentBossChallenge = 0;
+      loadFinalBossChallenge();
+    }
+
+    function loadFinalBossChallenge() {
+      const challenge = allTours[3].challenges[currentBossChallenge];
+      found = 0;
+      correctWord = challenge.word;
+      correctDisplayWord = correctWord;
+      
+      // Update progress
+      currentChallengeEl.textContent = currentBossChallenge + 1;
+      centerWordEl.classList.add('final-boss-center-word');
+
+        centerWordEl.innerHTML = `
+        <img src="${challenge.image}" alt="${challenge.word}" style="
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            border-radius: 20px;
+        ">
+        `;
+
+      
+      // Prepare answer options
+      let displayedWords = shuffle([...challenge.others]);
+      
+      // Add 2 correct answers
+      displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+      displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+      
+      // Create buttons
+      wordGrid.innerHTML = '';
+      displayedWords.forEach((word) => {
+        const btn = document.createElement('button');
+        btn.textContent = word;
+        btn.className = 'word-button';
+        btn.onclick = () => handleFinalBossClick(btn, word);
+        wordGrid.appendChild(btn);
+      });
+      
+      nextBtn.style.display = 'none';
+      restartBtn.style.display = 'none';
+    }
+
+    function handleFinalBossClick(button, word) {
+      if (button.disabled) return;
+      button.disabled = true;
+
+      const isCorrect = (word === correctWord);
+
+      if (isCorrect) {
+        score += 1;
+        found += 1;
+        button.classList.add('correct-answer');
+        showCelebration();
+      } else {
+        score -= 1;
+        button.classList.add('wrong-answer');
+      }
+      scoreEl.textContent = `Score: ${score}`;
+
+      if (found === 2) { // 2 correct answers needed for each challenge
+        if (currentBossChallenge < 6) { // 7 challenges total (0-6)
+          currentBossChallenge++;
+          setTimeout(() => {
+            loadFinalBossChallenge();
+          }, 1500);
+        } else {
+          // Final boss defeated!
+          finalBossProgress.style.display = 'none';
+          centerWordEl.innerHTML = '🏆 BOSS DEFEATED! 🏆';
+          wordGrid.innerHTML = '';
+          scoreEl.textContent = `🎉 CHAMPION SCORE: ${score} 🎉`;
+          restartBtn.style.display = 'inline-block';
+        }
+      }
+    }
+
+    function loadTour(index) {
+      found = 0;
+      const tour = allTours[index];
+
+      // Check if this is the final boss tour
+      if (index === 3) {
+        showFinalBossVideo();
+        return;
+      }
+
+      if (index === 1) {
+        correctWord = tour.word;
+        correctDisplayWord = randomizeCaps(correctWord);
+        centerWordEl.innerHTML = correctDisplayWord;
+      } else if (index === 2) {
+        // Tour 3 - colored letters
+        correctWord = tour.word;
+        correctDisplayWord = correctWord;
+        correctColors = getRandomColors(correctWord.length);
+        centerWordEl.innerHTML = createColoredWord(correctWord, correctColors);
+      } else if (index === 3) {
+        // Tour 4 - image matching
+        correctWord = tour.word;
+        correctDisplayWord = correctWord;
+        // Create SVG apple image
+        const appleImage = `
+          <svg class="center-image" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Apple body -->
+            <ellipse cx="50" cy="60" rx="25" ry="30" fill="#ff4444" stroke="#cc0000" stroke-width="2"/>
+            <!-- Apple highlight -->
+            <ellipse cx="42" cy="50" rx="8" ry="12" fill="#ff8888" opacity="0.7"/>
+            <!-- Apple stem -->
+            <rect x="48" y="25" width="4" height="12" fill="#8B4513" rx="2"/>
+            <!-- Apple leaf -->
+            <ellipse cx="58" cy="32" rx="8" ry="4" fill="#228B22" transform="rotate(30 58 32)"/>
+            <path d="M54 32 Q58 28 62 32" stroke="#006400" stroke-width="1" fill="none"/>
+          </svg>
+        `;
+        centerWordEl.innerHTML = appleImage;
+      } else {
+        correctWord = tour.word;
+        correctDisplayWord = correctWord;
+        centerWordEl.innerHTML = correctWord;
+      }
+
+      nextBtn.style.display = 'none';
+      restartBtn.style.display = 'none';
+
+      let displayedWords = shuffle([...tour.others]);
+
+      if (index === 1) {
+        // Tour 2 logic
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+
+        let fakeCorrect;
+        do {
+          fakeCorrect = randomizeCaps(correctWord);
+        } while (fakeCorrect === correctDisplayWord || fakeCorrect === correctWord);
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, fakeCorrect);
+      } else if (index === 2) {
+        // Tour 3 logic - add correct answers with matching colors and wrong answers with different colors
+        
+        // Add 2 correct answers with exact same colors
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+        
+        // Add 2 words that match the text but have different colors
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+      } else if (index === 3) {
+        // Tour 4 logic - add correct word matches for the image
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+        displayedWords.splice(Math.floor(Math.random() * displayedWords.length), 0, correctWord);
+      }
+
+      wordGrid.innerHTML = '';
+      displayedWords.forEach((word, wordIndex) => {
+        let displayWord = word;
+        let wordColors = [];
+        let isCorrectMatch = false;
+
+        if (index === 1) {
+          // Tour 2 logic
+          let firstMatch = true;
+          displayWord = (word === correctWord && firstMatch) ? correctDisplayWord : randomizeCaps(word);
+          if (word === correctWord && firstMatch) {
+            firstMatch = false;
+          }
+        } else if (index === 2) {
+          // Tour 3 logic
+          if (word === correctWord) {
+            // Determine if this should be a correct match or wrong color match
+            const correctAnswersCount = displayedWords.slice(0, wordIndex).filter(w => w === correctWord).length;
+            
+            if (correctAnswersCount < 2) {
+              // This should be a correct match (same word, same colors)
+              wordColors = [...correctColors];
+              isCorrectMatch = true;
+            } else {
+              // This should be wrong color match (same word, different colors)
+              do {
+                wordColors = getRandomColors(word.length);
+              } while (colorsMatch(wordColors, correctColors));
+              isCorrectMatch = false;
+            }
+          } else {
+            // Wrong word, random colors
+            wordColors = getRandomColors(word.length);
+            isCorrectMatch = false;
+          }
+        }
+
+        const btn = document.createElement('button');
+        
+        if (index === 2) {
+          btn.innerHTML = createColoredWord(displayWord, wordColors);
+          btn.dataset.word = word;
+          btn.dataset.colors = JSON.stringify(wordColors);
+          btn.dataset.isCorrect = isCorrectMatch.toString();
+        } else {
+          btn.textContent = displayWord;
+        }
+        
+        btn.className = 'word-button';
+        btn.onclick = () => handleWordClick(btn, displayWord, index);
+        wordGrid.appendChild(btn);
+      });
+    }
+
+    function handleWordClick(button, word, tourIndex) {
+      if (button.disabled) return;
+      button.disabled = true;
+
+      let isCorrect = false;
+
+      if (tourIndex === 1) {
+        // Tour 2 logic
+        isCorrect = (word === correctDisplayWord);
+      } else if (tourIndex === 2) {
+        // Tour 3 logic - must match both word and colors
+        const buttonWord = button.dataset.word;
+        const buttonColors = JSON.parse(button.dataset.colors);
+        isCorrect = (buttonWord === correctWord && colorsMatch(buttonColors, correctColors));
+      } else if (tourIndex === 3) {
+        // Tour 4 logic - image matching
+        isCorrect = (word === correctWord);
+      } else {
+        // Tour 1 logic
+        isCorrect = (word === correctDisplayWord);
+      }
+
+      if (isCorrect) {
+        score += 1;
+        found += 1;
+        button.classList.add('correct-answer');
+        showCelebration();
+      } else {
+        score -= 1;
+        button.classList.add('wrong-answer');
+      }
+      scoreEl.textContent = `Score: ${score}`;
+
+      let totalCorrect;
+      if (currentTour === 1) {
+        totalCorrect = 2;
+      } else if (currentTour === 2) {
+        totalCorrect = 2; // 2 correct color matches in tour 3
+      } else if (currentTour === 3) {
+        totalCorrect = 2; // 2 correct word matches for image in tour 4
+      } else {
+        totalCorrect = allTours[currentTour].others.filter(w => w === allTours[currentTour].word).length;
+      }
+
+      if (found === totalCorrect) {
+        if (currentTour < allTours.length - 1) {
+          nextBtn.style.display = 'inline-block';
+        } else {
+          nextBtn.style.display = 'none';
+          restartBtn.style.display = 'inline-block';
+          centerWordEl.innerHTML = '🎉 Amazing! 🎉';
+          wordGrid.innerHTML = '';
+          scoreEl.textContent = `🏆 Final Score: ${score} 🏆`;
+        }
+      }
+    }
+
+    nextBtn.onclick = () => {
+      if (currentTour < allTours.length - 1) {
+        currentTour++;
+        loadTour(currentTour);
+      }
+    };
+
+    restartBtn.onclick = () => {
+      currentTour = 0;
+      currentBossChallenge = 0;
+      score = 0;
+      scoreEl.textContent = 'Score: 0';
+      gameContainer.classList.remove('final-boss-theme');
+      finalBossProgress.style.display = 'none';
+      centerWordEl.classList.remove('final-boss-center-word');
+      loadTour(currentTour);
+    };
+
+    loadTour(currentTour);
+  </script>
+</body>
+</html>
