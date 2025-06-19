@@ -819,9 +819,11 @@
         found += 1;
         button.classList.add('correct-answer');
         showCelebration();
+        playSound('correct_answer.mp3');
       } else {
         score -= 1;
         button.classList.add('wrong-answer');
+        playSound('wrong_answer.mp3');
       }
       scoreEl.textContent = `Score: ${score}`;
 
