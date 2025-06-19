@@ -633,6 +633,21 @@
     let correctWord = '';
     let correctDisplayWord = '';
     let correctColors = [];
+
+    let currentSound = null;
+
+    function playSound(src) {
+      // Stop previous sound if it's playing
+      if (currentSound) {
+        currentSound.pause();
+        currentSound.currentTime = 0;
+      }
+
+      // Play new sound
+      currentSound = new Audio(src);
+      currentSound.play();
+    }
+
     const startGameBtn = document.getElementById('startGameBtn');
 
     function preloadImages(imagePaths) {
@@ -984,9 +999,13 @@
         found += 1;
         button.classList.add('correct-answer');
         showCelebration();
+        playSound('correct_answer.mp3');
+
       } else {
         score -= 1;
         button.classList.add('wrong-answer');
+        playSound('wrong_answer.mp3');
+
       }
       scoreEl.textContent = `Score: ${score}`;
 
